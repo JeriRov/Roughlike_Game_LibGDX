@@ -1,4 +1,4 @@
-package com.mygdx.dworlds.entity.mobs;
+package com.mygdx.dworlds.entity.mobs.enemy;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -7,14 +7,12 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.mygdx.dworlds.entity.Enemy;
-import com.mygdx.dworlds.entity.Entity;
 import com.mygdx.dworlds.Enums;
 import com.mygdx.dworlds.Enums.EntityType;
-import com.mygdx.dworlds.manager.ObjectManager;
-import com.mygdx.dworlds.Rumble;
 import com.mygdx.dworlds.box2d.Box2DHelper;
 import com.mygdx.dworlds.box2d.Box2DWorld;
+import com.mygdx.dworlds.entity.mobs.Enemy;
+import com.mygdx.dworlds.manager.ObjectManager;
 import com.mygdx.dworlds.map.Chunk;
 import com.mygdx.dworlds.map.Media;
 import com.mygdx.dworlds.map.Tile;
@@ -35,6 +33,8 @@ public class Bird extends Enemy {
         height = 8;
         shadow = Media.birdShadow;
         this.pos.set(pos);
+
+        healthPoints = 100;
 
         this.state = state;
         setup(box2d);
@@ -72,7 +72,6 @@ public class Bird extends Enemy {
         int chunkNumber = json.get("chunk").getAsInt();
         int tileRow = json.get("row").getAsInt();
         int tileCol = json.get("col").getAsInt();
-
         return objectManager.chunks.get(chunkNumber).tiles.get(tileRow).get(tileCol);
     }
 
@@ -81,7 +80,7 @@ public class Bird extends Enemy {
         texture = Media.tree; // Will be replaced
         body = Box2DHelper.createBody(box2d.world, width/2, height/2, width/4, 0, pos, BodyDef.BodyType.StaticBody);
         sensor = Box2DHelper.createSensor(box2d.world, width, height*.85f, width/2, height/3, pos, BodyDef.BodyType.DynamicBody);
-/*        hashcode = sensor.getFixtureList().get(0).hashCode();*/
+        hashcode = sensor.getFixtureList().get(0).hashCode();
         ticks = true;
     }
 
@@ -118,14 +117,7 @@ public class Bird extends Enemy {
         }
     }
 
-    @Override
-    public void interact(Entity entity){
-        if(entity.inventory != null){
-            entity.inventory.addEntity(this);
-            remove = true;
-            Rumble.rumble(1, .2f);
-        }
-    }
+
 
     private void toggleHitboxes(boolean b) {
         body.setActive(b);

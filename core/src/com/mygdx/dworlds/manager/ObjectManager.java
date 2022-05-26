@@ -9,8 +9,8 @@ import java.util.TreeMap;
 
 
 public class ObjectManager {
-    public ArrayList<Entity> entities = new ArrayList<Entity>();
-    public TreeMap<Integer, Chunk> chunks = new TreeMap<Integer, Chunk>();
+    public ArrayList<Entity> entities = new ArrayList<>();
+    public TreeMap<Integer, Chunk> chunks = new TreeMap<>();
     transient public Chunk currentChunk;
 
     public void clearAll(Box2DWorld box2D) {

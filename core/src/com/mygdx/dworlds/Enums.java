@@ -21,8 +21,14 @@ public class Enums {
         FLYING,
         HOVERING,
         LANDING,
-        STAYING
+        STAYING,
+        ATTACKING
     }
+   static public enum GameState {
+        OVER,
+        START
+    }
+
     public enum EntityDirection {
         LEFT,
         RIGHT,

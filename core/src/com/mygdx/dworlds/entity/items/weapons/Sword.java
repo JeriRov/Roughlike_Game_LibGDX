@@ -1,17 +1,21 @@
-package com.mygdx.dworlds.items.weapons;
+package com.mygdx.dworlds.entity.items.weapons;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.mygdx.dworlds.Enums;
-import com.mygdx.dworlds.entity.Entity;
+import com.mygdx.dworlds.box2d.Box2DHelper;
+import com.mygdx.dworlds.box2d.Box2DWorld;
+import com.mygdx.dworlds.entity.items.Weapon;
 import com.mygdx.dworlds.map.Media;
 
-public class Sword extends Entity {
+public class Sword extends Weapon {
     float originXOffset; // OriginX Offset
     float originYOffset; // OriginY Offset
     float xPos;    		 // X offset for gun position
     float xMinPos; 		 // X Position offset facing left
     float xMaxPos; 		 // X Position offset facing right
-    public Sword(float originXOffset, float xMinRight, float xMaxRight){
+    Box2DWorld box2d;
+    public Sword(float originXOffset, float xMinRight, float xMaxRight, Box2DWorld box2d){
         texture = Media.sword;
         width = texture.getWidth();
         height = texture.getHeight();
@@ -20,6 +24,8 @@ public class Sword extends Entity {
         this.originXOffset = originXOffset;
         this.xMinPos = xMinRight;
         this.xMaxPos = xMaxRight;
+        this.box2d = box2d;
+        sensor = Box2DHelper.createSensor(box2d.world, width, height, width/2, height/2, pos, BodyDef.BodyType.DynamicBody);
     }
 
     public void drawRotated(SpriteBatch batch, Enums.EntityDirection direction){
@@ -35,6 +41,6 @@ public class Sword extends Entity {
             flipY = false;
         }
         if(texture != null) batch.draw(texture, pos.x + xPos, pos.y, originXOffset, originYOffset, width, height, 1, 1, angle, 0, 0, (int)width, (int)height, flipX, flipY);
-    }
+   }
 
 }

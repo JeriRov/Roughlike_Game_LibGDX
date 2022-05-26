@@ -8,17 +8,18 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.mygdx.dworlds.box2d.Box2DWorld;
 import com.mygdx.dworlds.entity.Entity;
 import com.mygdx.dworlds.entity.Hero;
-import com.mygdx.dworlds.entity.mobs.Bird;
+import com.mygdx.dworlds.entity.mobs.enemy.Bird;
 import com.mygdx.dworlds.manager.ObjectManager;
-import com.mygdx.dworlds.saves.SaveGame;
-import com.mygdx.dworlds.ui.SquareMenu;
-import com.mygdx.dworlds.box2d.Box2DWorld;
 import com.mygdx.dworlds.map.Chunk;
 import com.mygdx.dworlds.map.Island;
+import com.mygdx.dworlds.Enums.GameState;
 import com.mygdx.dworlds.map.Media;
 import com.mygdx.dworlds.map.Tile;
+import com.mygdx.dworlds.saves.SaveGame;
+import com.mygdx.dworlds.ui.SquareMenu;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +31,7 @@ public class Dworlds extends ApplicationAdapter {
 	Matrix4 screenMatrix;
 	public Box2DWorld box2D;
 	public SaveGame saveGame;
-
+	public GameState gameState;
 	// Display Size
 	private int displayW;
 	private int displayH;
@@ -49,9 +50,9 @@ public class Dworlds extends ApplicationAdapter {
 
 	@Override
 	public void create() {
-		Media.load_assets();
+		gameState = Enums.GameState.START;
+		Media.loadAssets();
 		batch = new SpriteBatch();
-
 		// CAMERA
 		displayW = Gdx.graphics.getWidth();
 		displayH = Gdx.graphics.getHeight();
@@ -174,12 +175,16 @@ public class Dworlds extends ApplicationAdapter {
 
 		box2D.tick(camera, control);
 		island.clearRemovedEntities(box2D);
+
 		time += Gdx.graphics.getDeltaTime();
 		if(time > 3){
 			if(!control.debug) System.out.println(Gdx.graphics.getFramesPerSecond());
 			time = 0;
 		}
+
 		control.processedClick = true;
+		if(gameState == GameState.OVER)
+			resetGameState();
 	}
 
 	private void resetGameState() {
@@ -196,7 +201,7 @@ public class Dworlds extends ApplicationAdapter {
 	}
 
 	@Override
-	public void dispose () {
+	public void dispose() {
 		batch.dispose();
 	}
 

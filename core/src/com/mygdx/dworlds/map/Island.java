@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.mygdx.dworlds.entity.Entity;
-import com.mygdx.dworlds.entity.Tree;
+import com.mygdx.dworlds.entity.foliage.Tree;
 import com.mygdx.dworlds.Enums.TileType;
 import com.mygdx.dworlds.manager.ObjectManager;
 import com.mygdx.dworlds.box2d.Box2DHelper;

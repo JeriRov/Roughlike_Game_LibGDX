@@ -8,7 +8,7 @@ import com.mygdx.dworlds.Enums;
 import com.mygdx.dworlds.Enums.EntityState;
 import com.mygdx.dworlds.Enums.EntityType;
 import com.mygdx.dworlds.box2d.Box2DWorld;
-import com.mygdx.dworlds.items.weapons.Sword;
+import com.mygdx.dworlds.entity.items.weapons.Sword;
 import com.mygdx.dworlds.map.Chunk;
 import com.mygdx.dworlds.map.Tile;
 
@@ -41,11 +41,9 @@ public class Entity implements Comparable<Entity> {
     public Boolean flipY = false;
     public boolean active;
     public ArrayList<Sword> weapons;
-    public float healthPoints;
-    public float damage;
 
-    float dirX = 0;
-    float dirY = 0;
+    public float dirX = 0;
+    public float dirY = 0;
 
     public Entity(){
         pos = new Vector3();
@@ -77,16 +75,13 @@ public class Entity implements Comparable<Entity> {
         }
     }
 
-
-
-    public void collision(Entity entity, boolean begin){}
-
+    public void entityCollision(Entity entity, boolean begin){}
     public void interact(Entity entity){}
-
     public void removeBodies(Box2DWorld box2D) {
         if(sensor != null) box2D.world.destroyBody(sensor);
         if(body != null) box2D.world.destroyBody(body);
     }
+    public void getDamage(float enemyDamage){}
 
     public void getVector(Vector3 dest){
         float dx = dest.x - pos.x;
@@ -103,4 +98,5 @@ public class Entity implements Comparable<Entity> {
             pos.y = y;
         }
     }
+
 }

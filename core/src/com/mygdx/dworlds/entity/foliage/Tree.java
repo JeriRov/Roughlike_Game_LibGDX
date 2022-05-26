@@ -1,15 +1,14 @@
-package com.mygdx.dworlds.entity;
+package com.mygdx.dworlds.entity.foliage;
 
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.google.gson.JsonObject;
 import com.mygdx.dworlds.Enums.EntityType;
-import com.mygdx.dworlds.Rumble;
 import com.mygdx.dworlds.box2d.Box2DHelper;
 import com.mygdx.dworlds.box2d.Box2DWorld;
 import com.mygdx.dworlds.map.Media;
 
-public class Tree extends Entity{
+public class Tree extends Foliage {
 
     public Tree(Vector3 pos, Box2DWorld box2d){
         super();
@@ -38,12 +37,5 @@ public class Tree extends Entity{
         hashcode = sensor.getFixtureList().get(0).hashCode();
     }
 
-    @Override
-    public void interact(Entity entity){
-        if(entity.inventory != null){
-            entity.inventory.addEntity(this);
-            remove = true;
-            Rumble.rumble(1, .2f);
-        }
-    }
+
 }

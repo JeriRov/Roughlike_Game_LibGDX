@@ -27,15 +27,14 @@ public class Box2DWorld {
     public Box2DWorld() {
         world = new World(new Vector2(.0f, .0f), true);
         debugRenderer = new Box2DDebugRenderer();
-        entityMap = new HashMap<Integer, Entity>();
-
+        entityMap = new HashMap<>();
         world.setContactListener(new ContactListener() {
             @Override
             public void beginContact(Contact contact) {
                 Fixture fixtureA = contact.getFixtureA();
                 Fixture fixtureB = contact.getFixtureB();
 
-                processCollisions(fixtureA, fixtureB, true);
+                processEntityCollisions(fixtureA, fixtureB, true);
             }
 
             @Override
@@ -43,7 +42,7 @@ public class Box2DWorld {
                 Fixture fixtureA = contact.getFixtureA();
                 Fixture fixtureB = contact.getFixtureB();
 
-                processCollisions(fixtureA, fixtureB, false);
+                processEntityCollisions(fixtureA, fixtureB, false);
             }
 
             @Override
@@ -66,7 +65,7 @@ public class Box2DWorld {
     }
 
     public void clearAllBodies() {
-        Array<Body> bodies = new Array<Body>();
+        Array<Body> bodies = new Array<>();
         world.getBodies(bodies);
         for (Body b : bodies) {
             world.destroyBody(b);
@@ -75,15 +74,15 @@ public class Box2DWorld {
         entityMap.clear();
     }
 
-    private void processCollisions(Fixture aFixture, Fixture bFixture, boolean begin) {
+    private void processEntityCollisions(Fixture aFixture, Fixture bFixture, boolean begin) {
         Entity entityA = entityMap.get(aFixture.hashCode());
         Entity entityB = entityMap.get(bFixture.hashCode());
 
         if (entityA != null && entityB != null) {
             if (aFixture.isSensor() && !bFixture.isSensor()) {
-                entityB.collision(entityA, begin);
+                entityB.entityCollision(entityA, begin);
             } else if (bFixture.isSensor() && !aFixture.isSensor()) {
-                entityA.collision(entityB, begin);
+                entityA.entityCollision(entityB, begin);
             }
         }
     }
@@ -94,6 +93,8 @@ public class Box2DWorld {
             entityMap.put(e.hashcode, e);
         }
     }
+
+
 
     public void addEntityToMap(Entity entity) {
         entityMap.put(entity.hashcode, entity);

@@ -11,13 +11,16 @@ import com.mygdx.dworlds.Enums.EntityDirection;
 import com.mygdx.dworlds.Enums.EntityType;
 import com.mygdx.dworlds.box2d.Box2DHelper;
 import com.mygdx.dworlds.box2d.Box2DWorld;
-import com.mygdx.dworlds.items.weapons.Sword;
+import com.mygdx.dworlds.entity.mobs.Creature;
+import com.mygdx.dworlds.entity.mobs.Enemy;
+import com.mygdx.dworlds.entity.items.weapons.Sword;
 import com.mygdx.dworlds.map.Media;
 
 import java.util.ArrayList;
 
-public class Hero extends Entity {
+public class Hero extends Creature {
     ArrayList<Entity> interactEntities;
+    ArrayList<Enemy> interactEnemies;
     transient private TextureRegion tRegion;
     public Vector3 cameraPos;
 
@@ -38,7 +41,7 @@ public class Hero extends Entity {
         reset(box2d, pos);
 
         weapons = new ArrayList();
-        weapons.add(new Sword(0.8f, -0.4f, 3.9f));
+        weapons.add(new Sword(0.8f, -0.4f, 3.9f, box2d));
     }
 
     public Hero(JsonObject e, Box2DWorld box2d) {
@@ -62,6 +65,7 @@ public class Hero extends Entity {
         body = Box2DHelper.createBody(box2d.world, width-1, height/2, width/3, 0, pos, BodyType.DynamicBody);
         hashcode = body.getFixtureList().get(0).hashCode();
         interactEntities = new ArrayList<>();
+        interactEnemies = new ArrayList<>();
         ticks = true;
         direction = EntityDirection.RIGHT;
         texture = Media.heroStaying;
@@ -71,7 +75,6 @@ public class Hero extends Entity {
     @Override
     public void draw(SpriteBatch batch){
         setTextureRegion();
-
         if(!tRegion.isFlipX()) tRegion.flip(isDirLeft(), false);
         if(tRegion.isFlipX()) tRegion.flip(isDirRight(), false);
         if(tRegion != null) batch.draw(tRegion, pos.x, pos.y);
@@ -116,6 +119,7 @@ public class Hero extends Entity {
         else state = Enums.EntityState.STAYING;
 
         body.setLinearVelocity(dirX * speed, dirY * speed);
+
         pos.x = body.getPosition().x - width/2;
         pos.y = body.getPosition().y - height/4;
 
@@ -133,17 +137,20 @@ public class Hero extends Entity {
         }
         control.interact = false;
 
-        if(control.hit && interactEntities.size() > 0){
 
+
+        if(control.hit && interactEntities.size() > 0){
+            interactEntities.get(0).getDamage(damage + weapons.get(0).damage);
             control.hit = false;
         }
+
         // Update Camera Position
         cameraPos.set(pos);
         cameraPos.x += width / 2;
     }
 
     @Override
-    public void collision(Entity entity, boolean begin){
+    public void entityCollision(Entity entity, boolean begin){
         if(begin){
             // Hero entered hitbox
             interactEntities.add(entity);

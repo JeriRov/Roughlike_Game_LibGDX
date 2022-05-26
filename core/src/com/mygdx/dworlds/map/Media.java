@@ -35,7 +35,7 @@ public class Media {
     public static Texture selector;
     public static Texture close_menu;
 
-    public static void load_assets(){
+    public static void loadAssets(){
         // HERO
         heroStaying  = new Texture("entities/hero/hero.png");
         heroWalk = new Texture("entities/hero/hero_walk.png");
