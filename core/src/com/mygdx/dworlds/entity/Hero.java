@@ -2,7 +2,9 @@ package com.mygdx.dworlds.entity;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.google.gson.JsonObject;
 import com.mygdx.dworlds.Control;
@@ -11,16 +13,15 @@ import com.mygdx.dworlds.Enums.EntityDirection;
 import com.mygdx.dworlds.Enums.EntityType;
 import com.mygdx.dworlds.box2d.Box2DHelper;
 import com.mygdx.dworlds.box2d.Box2DWorld;
-import com.mygdx.dworlds.entity.mobs.Creature;
-import com.mygdx.dworlds.entity.mobs.Enemy;
 import com.mygdx.dworlds.entity.items.weapons.Sword;
+import com.mygdx.dworlds.entity.mobs.Creature;
 import com.mygdx.dworlds.map.Media;
 
 import java.util.ArrayList;
 
 public class Hero extends Creature {
     ArrayList<Entity> interactEntities;
-    ArrayList<Enemy> interactEnemies;
+
     transient private TextureRegion tRegion;
     public Vector3 cameraPos;
 
@@ -38,10 +39,12 @@ public class Hero extends Creature {
         speed = 30;
         inventory = new Inventory();
 
-        reset(box2d, pos);
 
         weapons = new ArrayList();
         weapons.add(new Sword(0.8f, -0.4f, 3.9f, box2d));
+
+        reset(box2d, pos);
+
     }
 
     public Hero(JsonObject e, Box2DWorld box2d) {
@@ -62,16 +65,25 @@ public class Hero extends Creature {
 
     public void reset(Box2DWorld box2d, Vector3 pos) {
         this.pos.set(pos);
+
         body = Box2DHelper.createBody(box2d.world, width-1, height/2, width/3, 0, pos, BodyType.DynamicBody);
-        hashcode = body.getFixtureList().get(0).hashCode();
+        if (isWeaponReady()) {
+            sensor = Box2DHelper.createBody(box2d.world, weapons.get(0).width-1, height + weapons.get(0).height, width * 2, 0, pos, BodyDef.BodyType.DynamicBody);
+        } else {
+            sensor = Box2DHelper.createBody(box2d.world, (width*3)/2, (height), width * 2, 0, pos, BodyDef.BodyType.DynamicBody);
+        }
+        bodyHashcode = body.getFixtureList().get(0).hashCode();
+        sensorHashcode = sensor.getFixtureList().get(0).hashCode();
+
         interactEntities = new ArrayList<>();
-        interactEnemies = new ArrayList<>();
-        ticks = true;
         direction = EntityDirection.RIGHT;
         texture = Media.heroStaying;
         inventory.reset();
+        ticks = true;
+        if(isWeaponReady()){
+            weapons.get(0).reset();
+        }
     }
-
     @Override
     public void draw(SpriteBatch batch){
         setTextureRegion();
@@ -80,7 +92,7 @@ public class Hero extends Creature {
         if(tRegion != null) batch.draw(tRegion, pos.x, pos.y);
         for(Sword g : weapons){
             if(g.active){
-                g.drawRotated(batch, direction);
+                g.drawRotated(batch, direction, state);
             }
         }
     }
@@ -95,6 +107,10 @@ public class Hero extends Creature {
                 tRegion = Media.heroStayingAnim.getKeyFrame(time, true);
                 animationSpeed = 0;
             }
+        }else if(isAttacking()){
+            if(animationSpeed >= 100) {
+                animationSpeed = 0;
+            }
         }
     }
 
@@ -102,70 +118,91 @@ public class Hero extends Creature {
         dirX = 0;
         dirY = 0;
 
-        if (control.down)  dirY = -1;
-        if (control.up)    dirY = 1;
+        if (control.down) dirY = -1;
+        if (control.up) dirY = 1;
 
         if (control.left) {
             dirX = -1;
-            if(!isDirLeft()) direction = EntityDirection.LEFT;
+            if (!isDirLeft()) direction = EntityDirection.LEFT;
         }
 
         if (control.right) {
             dirX = 1;
-            if(!isDirRight()) direction = EntityDirection.RIGHT;
+            if (!isDirRight()) direction = EntityDirection.RIGHT;
         }
 
-        if(dirX != 0 || dirY != 0) state = Enums.EntityState.WALKING;
+        if (dirX != 0 || dirY != 0) state = Enums.EntityState.WALKING;
         else state = Enums.EntityState.STAYING;
 
         body.setLinearVelocity(dirX * speed, dirY * speed);
+        updatePositions();
 
-        pos.x = body.getPosition().x - width/2;
-        pos.y = body.getPosition().y - height/4;
-
-        // If interact key pressed and interactEntities present interact with first in list.
-        if(control.interact && interactEntities.size() > 0){
+        if (control.interact && interactEntities.size() > 0) {
             interactEntities.get(0).interact(this);
         }
 
-        // Update weapons
-        for(Sword g : weapons){
-            if(g.active){
+        for (Sword g : weapons) {
+            if (g.active) {
                 g.updatePos(pos.x, pos.y);
                 g.angle = control.angle - 90;
             }
         }
         control.interact = false;
 
+        attack(control);
 
-
-        if(control.hit && interactEntities.size() > 0){
-            interactEntities.get(0).getDamage(damage + weapons.get(0).damage);
-            control.hit = false;
-        }
-
-        // Update Camera Position
         cameraPos.set(pos);
         cameraPos.x += width / 2;
+    }
+
+    public void getDamageHero(float damage){
+        healthPoints -= damage;
+        if (healthPoints <= 0){
+            healthPoints = 0;
+        }
+    }
+
+    private void attack(Control control){
+        if (control.hit && interactEntities.size() > 0) {
+            interactEntities.get(0).getDamage(damage + weapons.get(0).damage);
+            interactEntities.get(0).hitParticle();
+            state = Enums.EntityState.ATTACKING;
+        }
+        control.hit = false;
+    }
+
+    private void updatePositions() {
+        pos.x = body.getPosition().x - width/2;
+        pos.y = body.getPosition().y - height/4;
+        if (isWeaponReady()) {
+            if (isDirRight())
+                sensor.setTransform(new Vector2(pos.x + weapons.get(0).width+1, pos.y + weapons.get(0).height), 0);
+            else if (isDirLeft())
+                sensor.setTransform(new Vector2(pos.x - weapons.get(0).width/2, pos.y + weapons.get(0).height), 0);
+        }
     }
 
     @Override
     public void entityCollision(Entity entity, boolean begin){
         if(begin){
-            // Hero entered hitbox
             interactEntities.add(entity);
         } else {
-            // Hero Left hitbox
             interactEntities.remove(entity);
         }
     }
 
+    public boolean isWeaponReady(){
+        return weapons != null && weapons.size() > 0;
+    }
 
     private boolean isWalking(){
         return state == Enums.EntityState.WALKING;
     }
     private boolean isStaying(){
         return state == Enums.EntityState.STAYING;
+    }
+    private boolean isAttacking(){
+        return state == Enums.EntityState.ATTACKING;
     }
     private boolean isDirLeft(){
         return direction == EntityDirection.LEFT;

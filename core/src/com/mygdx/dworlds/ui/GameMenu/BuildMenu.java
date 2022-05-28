@@ -1,8 +1,11 @@
-package com.mygdx.dworlds.ui;
+package com.mygdx.dworlds.ui.GameMenu;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.dworlds.map.Media;
+import com.mygdx.dworlds.ui.Button;
+import com.mygdx.dworlds.ui.OnClickListener;
+
 public class BuildMenu extends Menu {
 
     public BuildMenu(float x, int y, int scale, Texture mainBack){

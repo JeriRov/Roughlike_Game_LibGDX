@@ -1,14 +1,16 @@
-package com.mygdx.dworlds.ui;
+package com.mygdx.dworlds.ui.GameMenu;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
-import com.mygdx.dworlds.Dworlds;
 import com.mygdx.dworlds.map.Media;
+import com.mygdx.dworlds.ui.Button;
+import com.mygdx.dworlds.ui.OnClickListener;
+import com.mygdx.dworlds.ui.PlayScreen;
 
 public class SquareMenu extends Menu {
     public BuildMenu build;
 
-    public SquareMenu(final Dworlds game){
+    public SquareMenu(final PlayScreen game){
         super(0, 0, 2, Media.squareMenu);
 
         int scale = 2;
@@ -36,7 +38,7 @@ public class SquareMenu extends Menu {
                 });
 
         btn = buttons.get(3);
-        btn.icon = Media.iconBuild;
+        btn.icon = Media.iconBackpack;
         buttons.get(3).setOnClickListener(
                 new OnClickListener(){
                     @Override

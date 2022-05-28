@@ -1,4 +1,4 @@
-package com.mygdx.dworlds.ui;
+package com.mygdx.dworlds.ui.GameMenu;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.mygdx.dworlds.entity.Entity;
 import com.mygdx.dworlds.Enums;
 import com.mygdx.dworlds.Enums.MenuState;
+import com.mygdx.dworlds.ui.Button;
 
 import java.util.ArrayList;
 

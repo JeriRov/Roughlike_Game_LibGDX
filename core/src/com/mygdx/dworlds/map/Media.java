@@ -20,20 +20,30 @@ public class Media {
     public static Animation<TextureRegion> heroWalkAnim, heroStayingAnim;
     // Entity
     public static Texture tree;
-    public static Texture birdWalk, birdFly, birdPeck, birdShadow;
+    public static Texture birdWalk, birdFly, birdPeck, birdShadow, birdHitParticle, birdGetDamage;
     public static Texture sword;
 
     // Texture Regions
-    public static TextureRegion[] birdWalkFrames, birdFlyFrames, birdPeckFrames;
+    public static TextureRegion[] birdWalkFrames, birdFlyFrames, birdPeckFrames, birdGetDamageFrames, birdHitParticleFrames;
+    public static TextureRegion[] swordAttackFrames;
 
-    // Animations
-    public static Animation<TextureRegion> birdWalkAnim, birdPeckAnim, birdFlyAnim;
+    // Animations Sword
+    public static Animation<TextureRegion> swordAttackAnim;
+    public static Texture swordAttack;
+
+    //Bird Anim
+    public static Animation<TextureRegion> birdWalkAnim, birdPeckAnim, birdFlyAnim, birdHitParticleAnim, birdGetDamageAnim;
 
     //GUI
     public static Texture squareMenu, mainBack, pinkButton;
-    public static Texture iconBuild, iconSettings, iconResources, iconSave;
+    public static Texture iconBackpack, iconSettings, iconResources, iconSave;
     public static Texture selector;
     public static Texture close_menu;
+
+    //BOSS
+    public static Texture bigBirdWalk, bigBirdFly;
+    public static TextureRegion[] bigBirdWalkFrames, bigBirdFlyFrames;
+    public static Animation<TextureRegion> bigBirdWalkAnim, bigBirdFlyAnim;
 
     public static void loadAssets(){
         // HERO
@@ -72,22 +82,34 @@ public class Media {
         cliff   = new Texture(Gdx.files.internal("8x8/cliff.png"));
 
         //Items
-        tree    = new Texture("entities/tree.png");
-        sword   = new Texture("entities/sword.png");
+        tree    = new Texture("entities/foliage/tree.png");
+        sword   = new Texture("entities/weapons/sword.png");
 
+        //Sword Anim
+        swordAttack = new Texture("entities/weapons/swordAttack.png");
+        swordAttackFrames = TextureRegion.split(swordAttack, 8, 3)[0];
+        swordAttackAnim = new Animation<>(.1f, swordAttackFrames);
+
+        //Bird
         birdPeck = new Texture("entities/bird/bird_peck.png");
         birdWalk = new Texture("entities/bird/bird_walk.png");
         birdFly  = new Texture("entities/bird/bird_fly.png");
         birdShadow = new Texture("entities/bird/bird_shadow.png");
+        birdHitParticle = new Texture("entities/bird/bird_hit_particle.png");
+        birdGetDamage = new Texture("entities/bird/bird_get_damage.png");
 
-        // Texture Regions
+        // Texture Regions Birds
         birdWalkFrames = TextureRegion.split(birdWalk, 10, 9)[0];
         birdPeckFrames = TextureRegion.split(birdPeck, 10, 9)[0];
         birdFlyFrames = TextureRegion.split(birdFly, 10, 9)[0];
+        birdHitParticleFrames = TextureRegion.split(birdHitParticle, 8, 8)[0];
+        birdGetDamageFrames = TextureRegion.split(birdGetDamage, 10, 10)[0];
 
         birdWalkAnim = new Animation<>(.1f, birdWalkFrames);
         birdPeckAnim = new Animation<>(.1f, birdPeckFrames);
         birdFlyAnim = new Animation<>(.1f, birdFlyFrames);
+        birdHitParticleAnim = new Animation<>(.1f, birdHitParticleFrames);
+        birdGetDamageAnim = new Animation<>(.1f, birdGetDamageFrames);
 
         // GUI
         squareMenu = new Texture(Gdx.files.internal("gui/square_menu.png"));
@@ -96,30 +118,21 @@ public class Media {
         selector = new Texture(Gdx.files.internal("gui/selector.png"));
 
         // ICONS
-        iconBuild = new Texture(Gdx.files.internal("gui/icons/build.png"));
+        iconBackpack = new Texture(Gdx.files.internal("gui/icons/backpack.png"));
         iconSettings = new Texture(Gdx.files.internal("gui/icons/settings.png"));
         iconResources = new Texture(Gdx.files.internal("gui/icons/resources.png"));
         iconSave = new Texture(Gdx.files.internal("gui/icons/save.png"));
         close_menu = new Texture(Gdx.files.internal("gui/icons/close_menu.png"));
+
+        //BOSS
+        bigBirdWalk = new Texture("entities/BigBird/big_bird_walk.png");
+        bigBirdFly  = new Texture("entities/BigBird/big_bird_fly.png");
+
+        bigBirdWalkFrames = TextureRegion.split(bigBirdWalk, 11, 9)[0];
+        bigBirdFlyFrames = TextureRegion.split(bigBirdFly, 11, 9)[0];
+
+        bigBirdWalkAnim = new Animation<>(.1f, bigBirdWalkFrames);
+        bigBirdFlyAnim = new Animation<>(.1f, bigBirdFlyFrames);
     }
 
-    public void dispose(){
-        grass01.dispose();
-        grass02.dispose();
-        grass03.dispose();
-        grass04.dispose();
-        grassLeft.dispose();
-        grassRight.dispose();
-        grassLeftUpperEdge.dispose();
-        grassRightUpperEdge.dispose();
-        grassTop.dispose();
-        grassTopRight.dispose();
-        grassTopLeft.dispose();
-        water01.dispose();
-        water02.dispose();
-        water03.dispose();
-        water04.dispose();
-        cliff.dispose();
-        tree.dispose();
-    }
 }

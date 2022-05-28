@@ -40,8 +40,8 @@ public class Control extends InputAdapter implements InputProcessor {
     public boolean hit;
 
     // SCREEN
-    int screenWidth;
-    int screenHeight;
+    public int screenWidth;
+    public int screenHeight;
 
     public Control(int screenWidth, int screenHeight, OrthographicCamera camera){
         this.camera = camera;

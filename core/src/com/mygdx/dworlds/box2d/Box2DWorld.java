@@ -23,11 +23,13 @@ public class Box2DWorld {
     public World world;
     private Box2DDebugRenderer debugRenderer;
     private HashMap<Integer, Entity> entityMap;
+    private HashMap<Integer, Entity> sensorMap;
 
     public Box2DWorld() {
         world = new World(new Vector2(.0f, .0f), true);
         debugRenderer = new Box2DDebugRenderer();
         entityMap = new HashMap<>();
+        sensorMap = new HashMap<>();
         world.setContactListener(new ContactListener() {
             @Override
             public void beginContact(Contact contact) {
@@ -41,7 +43,6 @@ public class Box2DWorld {
             public void endContact(Contact contact) {
                 Fixture fixtureA = contact.getFixtureA();
                 Fixture fixtureB = contact.getFixtureB();
-
                 processEntityCollisions(fixtureA, fixtureB, false);
             }
 
@@ -71,37 +72,58 @@ public class Box2DWorld {
             world.destroyBody(b);
         }
 
+        sensorMap.clear();
         entityMap.clear();
     }
 
     private void processEntityCollisions(Fixture aFixture, Fixture bFixture, boolean begin) {
-        Entity entityA = entityMap.get(aFixture.hashCode());
-        Entity entityB = entityMap.get(bFixture.hashCode());
+        Entity bodyA = entityMap.get(aFixture.hashCode());
+        Entity bodyB = entityMap.get(bFixture.hashCode());
+        Entity sensorA = sensorMap.get(aFixture.hashCode());
+        Entity sensorB = sensorMap.get(bFixture.hashCode());
 
-        if (entityA != null && entityB != null) {
-            if (aFixture.isSensor() && !bFixture.isSensor()) {
-                entityB.entityCollision(entityA, begin);
-            } else if (bFixture.isSensor() && !aFixture.isSensor()) {
-                entityA.entityCollision(entityB, begin);
+
+        /*System.out.println();
+        System.out.println(aFixture.hashCode() + " "  + bFixture.hashCode());
+        System.out.println("BODY: " + bodyA + " " + bodyB);
+        System.out.println("SENSOR: " + sensorA + " " + sensorB);
+        System.out.println(aFixture.isSensor() + " " + bFixture.isSensor());*/
+
+        if (sensorA != null && bodyB != null) {
+            if (!aFixture.isSensor() && !bFixture.isSensor()) {
+                sensorA.entityCollision(bodyB, begin);
+            }
+        } else  if (sensorB != null && bodyA != null) {
+            if (!aFixture.isSensor() && !bFixture.isSensor()) {
+                sensorB.entityCollision(bodyA, begin);
             }
         }
+
+        if (bodyA != null && bodyB != null) {
+        }
     }
+
+
 
     public void populateEntityMap(ArrayList<Entity> entities) {
         entityMap.clear();
+        sensorMap.clear();
         for (Entity e : entities) {
-            entityMap.put(e.hashcode, e);
+            entityMap.put(e.bodyHashcode, e);
+            sensorMap.put(e.sensorHashcode, e);
         }
+        System.out.println(entityMap);
+        System.out.println(sensorMap);
     }
 
-
-
     public void addEntityToMap(Entity entity) {
-        entityMap.put(entity.hashcode, entity);
+        entityMap.put(entity.bodyHashcode, entity);
+        sensorMap.put(entity.sensorHashcode, entity);
     }
 
     public void removeEntityToMap(Entity entity) {
-        entityMap.remove(entity.hashcode);
+        entityMap.remove(entity.bodyHashcode);
+        sensorMap.remove(entity.sensorHashcode);
     }
 
 }

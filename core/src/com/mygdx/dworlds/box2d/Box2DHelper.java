@@ -43,9 +43,9 @@ public class Box2DHelper {
 
         FixtureDef fixtureDef = new FixtureDef();
         PolygonShape boxShape = new PolygonShape();
-        boxShape.setAsBox(width / 2, height / 2);
+        boxShape.setAsBox(width/2 , height/2);
 
-        fixtureDef.shape =boxShape;
+        fixtureDef.shape = boxShape;
         fixtureDef.isSensor = true;
 
         body.createFixture(fixtureDef);

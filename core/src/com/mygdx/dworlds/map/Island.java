@@ -104,12 +104,12 @@ public class Island {
                                     tile.texture = Media.cliff;
                                     tile.tileType = TileType.CLIFF;
                                 } else {
-                                    // Chance to add trees etc
+                                    // Something else
                                 }
                             }
                         }
 
-                        // ADD TILE TO CHUNK
+                        // Add title to chunk
                         if(currentRow == row){
                             // Add tile to current row
                             tileArray.add(tile);
@@ -161,9 +161,6 @@ public class Island {
             for(ArrayList<Tile> row : chunk.tiles){
                 for(Tile tile : row){
                     // Check all surrounding tiles and set 1 for pass 0 for non pass
-                    // 0 0 0
-                    // 0 X 0
-                    // 0 0 0
 
                     int[] rows = {1,0,-1};
                     int[] cols = {-1,0,1};

@@ -14,7 +14,7 @@ public class ObjectManager {
     transient public Chunk currentChunk;
 
     public void clearAll(Box2DWorld box2D) {
-        // Clear Entity Box2D parts
+        // Clear Entity
         for(Entity e : entities){
             if (e.body != null) box2D.world.destroyBody(e.body);
             if (e.sensor != null) box2D.world.destroyBody(e.sensor);

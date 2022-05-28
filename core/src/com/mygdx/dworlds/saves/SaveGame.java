@@ -7,14 +7,14 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.mygdx.dworlds.Dworlds;
-import com.mygdx.dworlds.entity.Hero;
-import com.mygdx.dworlds.entity.mobs.enemy.Bird;
-import com.mygdx.dworlds.entity.foliage.Tree;
 import com.mygdx.dworlds.Enums.EntityType;
+import com.mygdx.dworlds.entity.Hero;
+import com.mygdx.dworlds.entity.foliage.Tree;
+import com.mygdx.dworlds.entity.mobs.enemy.Bird;
 import com.mygdx.dworlds.manager.ObjectManager;
 import com.mygdx.dworlds.map.Chunk;
 import com.mygdx.dworlds.map.Tile;
+import com.mygdx.dworlds.ui.PlayScreen;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -64,7 +64,7 @@ public class SaveGame {
         return false;
     }
 
-    public boolean load(Dworlds game){
+    public boolean load(PlayScreen game){
         loading = true;
 
         FileHandle file = Gdx.files.local(dir + "entities.json");

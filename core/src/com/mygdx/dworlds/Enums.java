@@ -22,11 +22,13 @@ public class Enums {
         HOVERING,
         LANDING,
         STAYING,
-        ATTACKING
+        ATTACKING,
+        HIT
     }
-   static public enum GameState {
-        OVER,
-        START
+    public enum GameState {
+        LOOSE,
+        START,
+        WIN
     }
 
     public enum EntityDirection {

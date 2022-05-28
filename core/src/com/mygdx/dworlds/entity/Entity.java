@@ -16,7 +16,8 @@ import java.util.ArrayList;
 
 
 public class Entity implements Comparable<Entity> {
-    public int hashcode;
+    public int bodyHashcode;
+    public int sensorHashcode;
     public Vector3 pos;
     transient public Vector3 destVec;
     transient public Texture texture;
@@ -76,11 +77,13 @@ public class Entity implements Comparable<Entity> {
     }
 
     public void entityCollision(Entity entity, boolean begin){}
+    public void entitySensorCollision(Entity entity, boolean begin){}
     public void interact(Entity entity){}
     public void removeBodies(Box2DWorld box2D) {
         if(sensor != null) box2D.world.destroyBody(sensor);
         if(body != null) box2D.world.destroyBody(body);
     }
+
     public void getDamage(float enemyDamage){}
 
     public void getVector(Vector3 dest){
@@ -99,4 +102,6 @@ public class Entity implements Comparable<Entity> {
         }
     }
 
+    protected void hitParticle() {
+    }
 }
