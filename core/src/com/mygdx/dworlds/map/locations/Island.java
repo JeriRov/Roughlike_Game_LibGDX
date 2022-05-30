@@ -1,4 +1,4 @@
-package com.mygdx.dworlds.map;
+package com.mygdx.dworlds.map.locations;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -10,6 +10,10 @@ import com.mygdx.dworlds.Enums.TileType;
 import com.mygdx.dworlds.manager.ObjectManager;
 import com.mygdx.dworlds.box2d.Box2DHelper;
 import com.mygdx.dworlds.box2d.Box2DWorld;
+import com.mygdx.dworlds.map.Chunk;
+import com.mygdx.dworlds.map.MapGenerator;
+import com.mygdx.dworlds.map.Media;
+import com.mygdx.dworlds.map.Tile;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -23,7 +27,7 @@ public class Island {
     int chunkTileWidth = chunkWidth * chunkTileSize;
 
     // Stores Entities and Chunk data
-    // Will allow all game objects to be converted to JSON in one conversion
+    // Allow all game objects to be converted to JSON in one conversion
     public ObjectManager objectManager;
 
     // TRACK CLICK
@@ -67,10 +71,10 @@ public class Island {
         ArrayList<Tile> tileArray;
 
         // ISLAND VARS
-        int rngW = MathUtils.random(5,8);
-        int rngH = MathUtils.random(5,8);
+        int rngW = MathUtils.random(8,15);
+        int rngH = MathUtils.random(8,15);
 
-        int centreTileRow = chunk.numberRows / 2;
+        int centreTileRow = chunk.numberRows /2;
         int centreTileCol = chunk.numberCols /2;
         int firstTileRow = centreTileRow - (rngH);
 

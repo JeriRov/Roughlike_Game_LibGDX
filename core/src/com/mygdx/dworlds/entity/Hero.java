@@ -11,6 +11,7 @@ import com.mygdx.dworlds.Control;
 import com.mygdx.dworlds.Enums;
 import com.mygdx.dworlds.Enums.EntityDirection;
 import com.mygdx.dworlds.Enums.EntityType;
+import com.mygdx.dworlds.Rumble;
 import com.mygdx.dworlds.box2d.Box2DHelper;
 import com.mygdx.dworlds.box2d.Box2DWorld;
 import com.mygdx.dworlds.entity.items.weapons.Sword;
@@ -20,7 +21,7 @@ import com.mygdx.dworlds.map.Media;
 import java.util.ArrayList;
 
 public class Hero extends Creature {
-    ArrayList<Entity> interactEntities;
+
 
     transient private TextureRegion tRegion;
     public Vector3 cameraPos;
@@ -68,9 +69,9 @@ public class Hero extends Creature {
 
         body = Box2DHelper.createBody(box2d.world, width-1, height/2, width/3, 0, pos, BodyType.DynamicBody);
         if (isWeaponReady()) {
-            sensor = Box2DHelper.createBody(box2d.world, weapons.get(0).width-1, height + weapons.get(0).height, width * 2, 0, pos, BodyDef.BodyType.DynamicBody);
+            sensor = Box2DHelper.createBody(box2d.world, weapons.get(0).width - 2, height + weapons.get(0).height, width * 2, 0, pos, BodyDef.BodyType.DynamicBody);
         } else {
-            sensor = Box2DHelper.createBody(box2d.world, (width*3)/2, (height), width * 2, 0, pos, BodyDef.BodyType.DynamicBody);
+            sensor = Box2DHelper.createBody(box2d.world, width, height, width, 0, pos, BodyType.DynamicBody);
         }
         bodyHashcode = body.getFixtureList().get(0).hashCode();
         sensorHashcode = sensor.getFixtureList().get(0).hashCode();
@@ -80,9 +81,7 @@ public class Hero extends Creature {
         texture = Media.heroStaying;
         inventory.reset();
         ticks = true;
-        if(isWeaponReady()){
-            weapons.get(0).reset();
-        }
+
     }
     @Override
     public void draw(SpriteBatch batch){
@@ -155,11 +154,14 @@ public class Hero extends Creature {
         cameraPos.x += width / 2;
     }
 
-    public void getDamageHero(float damage){
+    @Override
+    public void getDamage(float damage){
         healthPoints -= damage;
         if (healthPoints <= 0){
             healthPoints = 0;
         }
+        System.out.println("HERO HP: "+ healthPoints);
+        Rumble.rumble(.5f,.5f);
     }
 
     private void attack(Control control){
@@ -194,7 +196,6 @@ public class Hero extends Creature {
     public boolean isWeaponReady(){
         return weapons != null && weapons.size() > 0;
     }
-
     private boolean isWalking(){
         return state == Enums.EntityState.WALKING;
     }

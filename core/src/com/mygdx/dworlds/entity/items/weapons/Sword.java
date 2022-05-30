@@ -8,8 +8,6 @@ import com.mygdx.dworlds.entity.Entity;
 import com.mygdx.dworlds.entity.items.Weapon;
 import com.mygdx.dworlds.map.Media;
 
-import java.util.ArrayList;
-
 public class Sword extends Weapon {
     float originXOffset;
     float originYOffset;
@@ -30,12 +28,8 @@ public class Sword extends Weapon {
         this.xMinPos = xMinRight;
         this.xMaxPos = xMaxRight;
         this.box2d = box2d;
-        reset();
     }
 
-    public void reset() {
-        interactEnemies = new ArrayList<>();
-    }
 
     public void drawRotated(SpriteBatch batch, Enums.EntityDirection direction, Enums.EntityState heroState) {
         if (direction == Enums.EntityDirection.LEFT) {

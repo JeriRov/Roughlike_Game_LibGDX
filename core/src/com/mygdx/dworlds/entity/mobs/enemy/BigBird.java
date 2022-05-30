@@ -8,8 +8,11 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mygdx.dworlds.Enums;
+import com.mygdx.dworlds.Rumble;
 import com.mygdx.dworlds.box2d.Box2DHelper;
 import com.mygdx.dworlds.box2d.Box2DWorld;
+import com.mygdx.dworlds.entity.Entity;
+import com.mygdx.dworlds.entity.Hero;
 import com.mygdx.dworlds.entity.mobs.Enemy;
 import com.mygdx.dworlds.manager.ObjectManager;
 import com.mygdx.dworlds.map.Chunk;
@@ -22,15 +25,20 @@ public class BigBird extends Enemy {
     private float maxHeight;
     public Tile destTile;
     transient private TextureRegion tRegion;
-
-    public BigBird(Vector3 pos, Box2DWorld box2d, Enums.EntityState state) {
+    float maxHealth;
+    float tooLong = 0;
+    public BigBird(Vector3 pos, Box2DWorld box2d, Enums.EntityState state, Hero hero) {
         super();
         maxHeight = setHeight();
-        speed = 20;
+        speed = 15;
         width = 16;
         height = 14;
+        damage = 10;
+        attackSpeed = 60;
+
         shadow = Media.birdShadow;
         this.pos.set(pos);
+        this.hero = hero;
 
         enemyParticle = Media.birdHitParticleAnim;
 
@@ -69,12 +77,16 @@ public class BigBird extends Enemy {
     }
 
     private void setup(Box2DWorld box2d) {
+        healthPoints = 500;
+        maxHealth = healthPoints;
         type = Enums.EntityType.BIRD;
         texture = Media.tree;
-        body = Box2DHelper.createBody(box2d.world, width / 2, height / 2, width / 4, 0, pos, BodyDef.BodyType.StaticBody);
-        sensor = Box2DHelper.createSensor(box2d.world, width, height * .85f, width / 2, height / 3, pos, BodyDef.BodyType.DynamicBody);
+        body = Box2DHelper.createBody(box2d.world, width / 2, height/2+height/4, width / 4, height, pos, BodyDef.BodyType.StaticBody);
+        sensor = Box2DHelper.createSensor(box2d.world, width, height, width / 2, height / 3 + height/4, pos, BodyDef.BodyType.DynamicBody);
         bodyHashcode = body.getFixtureList().get(0).hashCode();
         sensorHashcode = sensor.getFixtureList().get(0).hashCode();
+        interactEntities = new ArrayList<>();
+        animationTime = 0;
         ticks = true;
     }
 
@@ -91,17 +103,22 @@ public class BigBird extends Enemy {
     public void draw(SpriteBatch batch) {
         setTextureRegion();
         setFlipped();
-        if (isHitting()) hitParticle();
+        if (isHitting())hitParticle();
         else tParticle = null;
 
         batch.draw(Media.birdShadow, pos.x, pos.y, width, height/2);
 
-
         if (tRegion != null) {
             batch.draw(tRegion, pos.x, pos.y + pos.z, width, height);
         }
+
         if (tParticle != null) {
             batch.draw(tParticle, pos.x, pos.y + pos.z, width, height);
+            if(animationTime > 5) {
+                animationTime = 0;
+                particleType = Enums.ParticleType.NONE;
+            }
+            animationTime += 0.1;
         }
     }
 
@@ -109,7 +126,7 @@ public class BigBird extends Enemy {
     public void tick(float delta, Chunk chunk) {
         if (isHovering()) {
             setLanding();
-        } else if (isLanding()) {
+        } else if(isLanding()) {
             land();
         } else if (needsDestination()) {
             newDestinationOrHover(delta, chunk);
@@ -121,28 +138,75 @@ public class BigBird extends Enemy {
         }
 
         if (isFlying()) {
+            tooLong += delta*3;
             checkFlyHeight();
-            toggleHitboxes(false);
+            toggleHitboxeSensor(false);
+            if(tooLong > 60){
+                tooLong = 0;
+                state = Enums.EntityState.LANDING;
+                land();
+            }
+        }
+
+        if(pos.z <= 0){
+            setNewState(delta);
+        }
+        if(healthPoints == maxHealth/2)
+            angry = true;
+        if(time >= (1000 + attackSpeed)/(attackSpeed+1)) {
+            attack();
+            time = 0;
+        }
+    }
+    void toggleHitboxesBody(boolean b){
+        body.setActive(b);
+    }
+    private void toggleHitboxeSensor(boolean b) {
+        body.setActive(b);
+    }
+    private void walk(float delta) {
+        if(currentTile != null && currentTile.isPassable()){
+            if(pos.x >= hero.pos.x)
+                body.setTransform(body.getPosition().x - ( speed/2 * delta), body.getPosition().y, 0);
+            if (pos.x <= hero.pos.x)
+                body.setTransform(body.getPosition().x + (speed/2 * delta) , body.getPosition().y , 0);
+            if(pos.y >= hero.pos.y )
+                body.setTransform(body.getPosition().x, body.getPosition().y - ( speed/2 * delta) , 0);
+            if(pos.y <= hero.pos.y )
+                body.setTransform(body.getPosition().x  ,body.getPosition().y + (  speed/2 * delta), 0);
+            if((pos.x - hero.pos.x > 1 || pos.x - hero.pos.x < 1)&&(pos.y -hero.pos.y > 1 || pos.y - hero.pos.y < 1))
+                body.setTransform(body.getPosition().x + ((-0.5f + MathUtils.random.nextFloat()) * speed * delta), body.getPosition().y + ((-0.5f + MathUtils.random.nextFloat())  * speed * delta), 0);
+                 updatePositions();
         }
     }
 
-    private void toggleHitboxes(boolean b) {
-        body.setActive(b);
-        sensor.setActive(b);
+
+    private void attack(){
+        if(interactEntities != null && interactEntities.size() > 0) {
+            interactEntities.get(0).getDamage(damage);
+        }
     }
 
     private void setNewState(float delta) {
-        if (coolDown > 0) {
+        if(coolDown > 0){
             coolDown -= delta;
-            if (isWalking()) {
+            if(isWalking())
                 walk(delta);
+        } else if(!angry ) {
+            if(MathUtils.randomBoolean(.2f)) {
+                state = Enums.EntityState.FLYING;
+                coolDown = 5f;
+            } else  {
+            state = Enums.EntityState.WALKING;
+            coolDown = 10f;
             }
         } else {
-            if (MathUtils.randomBoolean(.2f)) {
+            if(MathUtils.randomBoolean(.2f)){
                 state = Enums.EntityState.FLYING;
-            } else if (MathUtils.randomBoolean(.3f)) {
+                coolDown = 5f;
+            } else {
                 state = Enums.EntityState.WALKING;
-                coolDown = 1f;
+                coolDown = 10f;
             }
         }
     }
@@ -179,7 +243,14 @@ public class BigBird extends Enemy {
     }
 
     private void moveToDestination(float delta) {
-        body.setTransform(body.getPosition().x + (destVec.x * speed * delta), body.getPosition().y + (destVec.y * speed * delta), 0);
+        if(pos.x >= hero.pos.x)
+        body.setTransform(body.getPosition().x - ( speed * delta), body.getPosition().y, 0);
+        if (pos.x <= hero.pos.x)
+            body.setTransform(body.getPosition().x + (speed * delta) , body.getPosition().y , 0);
+        if(pos.y >= hero.pos.y )
+            body.setTransform(body.getPosition().x, body.getPosition().y - ( speed * delta) , 0);
+        if(pos.y <= hero.pos.y )
+            body.setTransform(body.getPosition().x  ,body.getPosition().y + (  speed * delta), 0);
 
         updatePositions();
     }
@@ -194,16 +265,19 @@ public class BigBird extends Enemy {
     }
 
     private void land() {
-        if (isAirBorn()) pos.z -= 0.5;
+        if (isAirBorn()) pos.z -= 1;
         if (pos.z <= 0) {
             pos.z = 0;
+            Rumble.rumble(.8f, .6f);
             state = Enums.EntityState.NONE;
-            toggleHitboxes(true);
+            toggleHitboxeSensor(true);
         }
     }
 
+
+
     private void setLanding() {
-        if (MathUtils.randomBoolean(.05f)) {
+        if (MathUtils.randomBoolean(.9f)) {
             state = Enums.EntityState.LANDING;
         }
     }
@@ -231,17 +305,6 @@ public class BigBird extends Enemy {
         }
     }
 
-    private void walk(float delta) {
-        if (currentTile != null && currentTile.isPassable()) {
-            if (tRegion.isFlipX()) {
-                body.setTransform(body.getPosition().x - speed / 4 * delta, body.getPosition().y, 0);
-            } else {
-                body.setTransform(body.getPosition().x + speed / 4 * delta, body.getPosition().y, 0);
-            }
-            updatePositions();
-        }
-    }
-
     private boolean hasDestination() {
         return destVec != null;
     }
@@ -251,6 +314,17 @@ public class BigBird extends Enemy {
         if (currentTile == null || destTile == null) return false;
         return currentTile.pos.epsilonEquals(destTile.pos, 20);
     }
+
+    @Override
+    public void entityCollision(Entity entity, boolean begin){
+        if(begin && entity.bodyHashcode != bodyHashcode && entity.sensorHashcode != sensorHashcode){
+            interactEntities.add(entity);
+        } else {
+            interactEntities.remove(entity);
+        }
+        attack();
+    }
+    private boolean isAtacking(){return state == Enums.EntityState.ATTACKING;}
 
     private boolean needsDestination() {
         return destVec == null && isFlying();
@@ -277,7 +351,7 @@ public class BigBird extends Enemy {
     }
 
     private boolean isHitting() {
-        return state == Enums.EntityState.HIT;
+        return particleType == Enums.ParticleType.HIT;
     }
 
     private boolean isFlying() {

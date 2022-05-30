@@ -3,12 +3,10 @@ package com.mygdx.dworlds.ui.GameMenu;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.dworlds.map.Media;
-import com.mygdx.dworlds.ui.Button;
-import com.mygdx.dworlds.ui.OnClickListener;
 
 public class BuildMenu extends Menu {
 
-    public BuildMenu(float x, int y, int scale, Texture mainBack){
+    public BuildMenu(float x, float y, int scale, Texture mainBack){
         super(x, y, 2, Media.mainBack);
         addButtons(3, 14, 2, Media.pinkButton, Media.selector, 2);
         setInactive();

@@ -9,22 +9,22 @@ public class Chunk {
     public int chunkNumber;
     public int row;
     public int col;
-    int numberRows;
-    int numberCols;
-    int tileSize;
+    public int numberRows;
+    public int numberCols;
+    public int tileSize;
 
     // Tiles are split into arrays of rows
-    public ArrayList<ArrayList<Tile>> tiles = new ArrayList<ArrayList<Tile>>();
+    public ArrayList<ArrayList<Tile>> tiles;
 
     public Chunk(int number_rows, int number_cols, int tile_size){
-        tiles = new ArrayList<ArrayList<Tile>>();
+        tiles = new ArrayList<>();
         this.numberRows = number_rows;
         this.numberCols = number_cols;
         this.tileSize = tile_size;
     }
 
     public Chunk(JsonObject chunk) {
-        tiles = new ArrayList<ArrayList<Tile>>();
+        tiles = new ArrayList<>();
         numberRows = chunk.get("numberRows").getAsInt();
         numberCols = chunk.get("numberCols").getAsInt();;
         tileSize = chunk.get("tileSize").getAsInt();

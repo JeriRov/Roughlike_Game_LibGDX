@@ -13,12 +13,10 @@ import com.mygdx.dworlds.ui.LoadingScreen;
 import com.mygdx.dworlds.ui.MainMenu;
 import com.mygdx.dworlds.ui.PlayScreen;
 import com.mygdx.dworlds.ui.SplashScreen;
+import com.mygdx.dworlds.ui.WinnerScreen;
 
 public class Dworlds extends Game {
 
-	public static final String TITLE = "Different Worlds";
-	public static final float VERSION = 0.4f;
-	// Display Size
 	public int displayW;
 	public int displayH;
 
@@ -31,6 +29,7 @@ public class Dworlds extends Game {
 	public MainMenu mainMenu;
 	public LoadingScreen loadingScreen;
 	public PlayScreen playScreen;
+	public WinnerScreen winnerScreen;
 
 	@Override
 	public void create() {
@@ -47,17 +46,16 @@ public class Dworlds extends Game {
 		playScreen = new PlayScreen(this);
 		splashScreen = new SplashScreen(this);
 		mainMenu = new MainMenu(this);
+		winnerScreen = new WinnerScreen(this);
 		this.setScreen(loadingScreen);
 	}
 
 	@Override
 	public void render() {
 		super.render();
-
 		if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
 			Gdx.app.exit();
 		}
-
 	}
 
 	private void initFonts() {

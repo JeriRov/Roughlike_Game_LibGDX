@@ -22,17 +22,18 @@ import com.mygdx.dworlds.entity.mobs.enemy.BigBird;
 import com.mygdx.dworlds.entity.mobs.enemy.Bird;
 import com.mygdx.dworlds.manager.ObjectManager;
 import com.mygdx.dworlds.map.Chunk;
-import com.mygdx.dworlds.map.Island;
+import com.mygdx.dworlds.map.locations.Island;
 import com.mygdx.dworlds.map.Media;
 import com.mygdx.dworlds.map.Tile;
 import com.mygdx.dworlds.saves.SaveGame;
+import com.mygdx.dworlds.ui.GameMenu.HpBar;
 import com.mygdx.dworlds.ui.GameMenu.SquareMenu;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 public class PlayScreen implements Screen {
-    private final Dworlds game;
+    public final Dworlds game;
 
     // Stage vars
     private Stage stage;
@@ -63,6 +64,7 @@ public class PlayScreen implements Screen {
 
     // Menu test
     public SquareMenu squareMenu;
+    public HpBar hpBar;
     
     
     public PlayScreen(final Dworlds app) {
@@ -78,6 +80,7 @@ public class PlayScreen implements Screen {
         camera = new OrthographicCamera(w,h);
         camera.zoom = .6f;
         Media.loadAssets();
+
 
         // Input
         control = new Control(game.displayW, game.displayH, camera);
@@ -104,6 +107,8 @@ public class PlayScreen implements Screen {
 
         //Menu
         squareMenu = new SquareMenu(this);
+        hpBar = new HpBar(this);
+
 
         // Game Saving
         saveGame = new SaveGame();
@@ -111,12 +116,12 @@ public class PlayScreen implements Screen {
 
     @Override
     public void show() {
-        System.out.println("PLAY");
+        System.out.println("Game");
         Gdx.input.setInputProcessor(control);
         stage.clear();
         this.skin = new Skin();
-
-        initNavigationButtons();
+        gameState = Enums.GameState.START;
+        Gdx.graphics.requestRendering();
     }
 
 
@@ -151,6 +156,7 @@ public class PlayScreen implements Screen {
         control.processedClick = squareMenu.build.checkClick(control.mouseClickPos, control.processedClick);
         squareMenu.checkHover(control.mousePos);
 
+
         hero.update(control);
 
         // Geo location
@@ -162,17 +168,22 @@ public class PlayScreen implements Screen {
         }
 
         if(maxEntities - birdsCount == island.objectManager.entities.size() && spawnBoss) {
-            boss = new BigBird(new Vector3(MathUtils.random(300), MathUtils.random(300), 0), box2D, Enums.EntityState.FLYING);
+            boss = new BigBird(new Vector3(MathUtils.random(300), MathUtils.random(300), 0), box2D, Enums.EntityState.FLYING, hero);
             island.objectManager.entities.add(boss);
             Rumble.rumble(1, 1);
             box2D.addEntityToMap(boss);
             spawnBoss = false;
         }
 
-        if(levelUp < island.objectManager.entities.size()){
+        if(levelUp > island.objectManager.entities.size()){
             hero.damage += 5;
+            hero.healthPoints += 5;
+            if(hero.healthPoints > 100){
+                hero.healthPoints = 100;
+            }
+            System.out.println("HP heal :" + hero.healthPoints);
+            System.out.println("DAMAGE UP: " + hero.damage);
             levelUp = island.objectManager.entities.size();
-            System.out.println("UP:" + hero.damage);
         }
 
         // Tick all entities
@@ -209,9 +220,7 @@ public class PlayScreen implements Screen {
         }
 
         // Draw all entities
-        // TODO: Only tick / Draw entities in the current chunk
         for (Entity e : island.objectManager.entities) {
-            //e.draw(btach, currentChunk) Use current chunk to determine if render occurs
             e.draw(game.batch);
         }
 
@@ -221,32 +230,32 @@ public class PlayScreen implements Screen {
         game.batch.setProjectionMatrix(screenMatrix);
 
         game.batch.begin();
+        hpBar.setHp(hero.healthPoints);
         squareMenu.draw(game.batch);
         game.batch.end();
 
         box2D.tick(camera, control);
         island.clearRemovedEntities(box2D);
 
+        hero.damage = 1000;
         time += Gdx.graphics.getDeltaTime();
+
         if (time > 3) {
             if (!control.debug) System.out.println(Gdx.graphics.getFramesPerSecond());
             time = 0;
         }
-
         control.processedClick = true;
-        if (gameState == Enums.GameState.LOOSE)
+        if (hero.healthPoints == 0)
             resetGameState();
         if(!island.objectManager.entities.contains(boss) && !spawnBoss){
-            System.out.println(Rumble.getRumbleTimeLeft());
             if(!win) {
                 Rumble.rumble(3, 2);
                 win = true;
             }
-            if(Rumble.getRumbleTimeLeft() == 0 && win) {
+
+            if(Rumble.getRumbleTimeLeft() == 0) {
                 resetGameState();
-
-                game.setScreen(game.mainMenu);
-
+                game.setScreen(game.winnerScreen);
             }
         }
     }
@@ -257,11 +266,12 @@ public class PlayScreen implements Screen {
         hero.reset(box2D, island.getCentrePosition());
         island.objectManager.entities.add(hero);
 
-        birdsCount = MathUtils.random(10) + 2;
+        birdsCount = MathUtils.random(5) + 2;
+        System.out.println(birdsCount);
         for (int i = 0; i < birdsCount; i++) {
-            island.objectManager.entities.add(new Bird(new Vector3(MathUtils.random(300), MathUtils.random(300), 0), box2D, Enums.EntityState.FLYING));
+            island.objectManager.entities.add(new Bird(new Vector3(MathUtils.random(300), MathUtils.random(300), 0), box2D, Enums.EntityState.FLYING, hero));
         }
-        levelUp = birdsCount;
+        levelUp = island.objectManager.entities.size();
         birdsCount /= 2;
         maxEntities = island.objectManager.entities.size();
         spawnBoss = true;
@@ -277,7 +287,11 @@ public class PlayScreen implements Screen {
 
     @Override
     public void pause() {
-
+        if(gameState == Enums.GameState.PAUSE){
+            Gdx.graphics.requestRendering();
+        }else {
+            Gdx.graphics.setContinuousRendering(false);
+        }
     }
 
     @Override
@@ -295,23 +309,6 @@ public class PlayScreen implements Screen {
         stage.dispose();
         game.playScreen.dispose();
     }
-
-    // Initialize the back button
-    private void initNavigationButtons() {
-/*        menuButton = new TextButton("Menu", skin, "default");
-        menuButton.setPosition(20, camera.viewportHeight);
-        menuButton.setSize(100, 50);
-        menuButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(game.mainMenu);
-            }
-        });
-
-        stage.addActor(menuButton);*/
-
-    }
-
 
     public ArrayList<Entity> getEntities() {
         return island.objectManager.entities;

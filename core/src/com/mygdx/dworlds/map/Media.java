@@ -36,16 +36,22 @@ public class Media {
 
     //GUI
     public static Texture squareMenu, mainBack, pinkButton;
-    public static Texture iconBackpack, iconSettings, iconResources, iconSave;
+    public static Texture iconBackpack, iconPause, iconResources, iconSave;
     public static Texture selector;
     public static Texture close_menu;
+    public static Texture hpBar;
 
     //BOSS
     public static Texture bigBirdWalk, bigBirdFly;
     public static TextureRegion[] bigBirdWalkFrames, bigBirdFlyFrames;
     public static Animation<TextureRegion> bigBirdWalkAnim, bigBirdFlyAnim;
 
+    //MENU
+    public static Texture menu_background, winner_background, empty_hp_bar;
+
     public static void loadAssets(){
+        // Source https://opengameart.org/content/micro-tileset-overworld-and-dungeon
+        // Example Map: http://opengameart.org/sites/default/files/styles/watermarked/public/Render_0.png
         // HERO
         heroStaying  = new Texture("entities/hero/hero.png");
         heroWalk = new Texture("entities/hero/hero_walk.png");
@@ -56,11 +62,7 @@ public class Media {
         heroWalkAnim = new Animation<TextureRegion>(.1f, heroWalkFrames);
         heroStayingAnim = new Animation<TextureRegion>(.1f, heroStayingFrames);
 
-
-
-        // Source https://opengameart.org/content/micro-tileset-overworld-and-dungeon
-        // Example Map: http://opengameart.org/sites/default/files/styles/watermarked/public/Render_0.png
-        grass01 = new Texture("8x8/grass/grass_01.png");
+       grass01 = new Texture("8x8/grass/grass_01.png");
         grass02 = new Texture("8x8/grass/grass_02.png");
         grass03 = new Texture("8x8/grass/grass_03.png");
         grass04 = new Texture("8x8/grass/grass_04.png");
@@ -119,12 +121,12 @@ public class Media {
 
         // ICONS
         iconBackpack = new Texture(Gdx.files.internal("gui/icons/backpack.png"));
-        iconSettings = new Texture(Gdx.files.internal("gui/icons/settings.png"));
+        iconPause = new Texture(Gdx.files.internal("gui/icons/settings.png"));
         iconResources = new Texture(Gdx.files.internal("gui/icons/resources.png"));
         iconSave = new Texture(Gdx.files.internal("gui/icons/save.png"));
         close_menu = new Texture(Gdx.files.internal("gui/icons/close_menu.png"));
 
-        //BOSS
+        // BOSS
         bigBirdWalk = new Texture("entities/BigBird/big_bird_walk.png");
         bigBirdFly  = new Texture("entities/BigBird/big_bird_fly.png");
 
@@ -133,6 +135,12 @@ public class Media {
 
         bigBirdWalkAnim = new Animation<>(.1f, bigBirdWalkFrames);
         bigBirdFlyAnim = new Animation<>(.1f, bigBirdFlyFrames);
+
+        // MENU
+        empty_hp_bar = new Texture("gui/hp_empty.png");
+        menu_background = new Texture("ui/menu_background.png");
+        hpBar = new Texture("gui/hp_line.png");
+        winner_background = new Texture("ui/winner.png");
     }
 
 }

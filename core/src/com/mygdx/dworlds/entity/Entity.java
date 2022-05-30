@@ -37,7 +37,7 @@ public class Entity implements Comparable<Entity> {
     public float coolDown;
     public Tile currentTile;
     public float angle;
-    public int animationSpeed;
+    public float animationSpeed;
     public Boolean flipX = false;
     public Boolean flipY = false;
     public boolean active;
@@ -53,10 +53,6 @@ public class Entity implements Comparable<Entity> {
     public void draw(SpriteBatch batch){
         if(shadow != null) batch.draw(shadow, pos.x, pos.y, width, height);
         if(texture != null) batch.draw(texture, pos.x, pos.y, width, height);
-    }
-
-    public void drawRotated(SpriteBatch batch){
-        if(texture != null) batch.draw(texture, pos.x, pos.y, 0, 0, width, height, 1, 1, angle, 0, 0, (int)width, (int)height, flipX, flipY);
     }
 
     public void tick(float delta){
@@ -77,7 +73,7 @@ public class Entity implements Comparable<Entity> {
     }
 
     public void entityCollision(Entity entity, boolean begin){}
-    public void entitySensorCollision(Entity entity, boolean begin){}
+
     public void interact(Entity entity){}
     public void removeBodies(Box2DWorld box2D) {
         if(sensor != null) box2D.world.destroyBody(sensor);

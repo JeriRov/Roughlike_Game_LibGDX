@@ -7,7 +7,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.mygdx.dworlds.entity.Entity;
 import com.mygdx.dworlds.Enums;
 import com.mygdx.dworlds.Enums.MenuState;
-import com.mygdx.dworlds.ui.Button;
 
 import java.util.ArrayList;
 
@@ -24,6 +23,7 @@ public class Menu {
     public float coolDown;
     public Rectangle hitbox;
     public ArrayList<Button> buttons;
+    public float sizeW = 0.4f;
 
     public Menu(float x, float y, float scale, Texture texture){
         name = "Main Menu";
@@ -35,6 +35,7 @@ public class Menu {
         hitbox = new Rectangle(x,y,width,height);
         setActive();
     }
+
 
     public void draw(SpriteBatch batch){
         if(texture != null) batch.draw(texture, pos.x, pos.y, width, height);

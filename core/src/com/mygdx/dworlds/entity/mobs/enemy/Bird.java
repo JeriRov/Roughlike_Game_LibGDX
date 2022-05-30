@@ -11,6 +11,8 @@ import com.mygdx.dworlds.Enums;
 import com.mygdx.dworlds.Enums.EntityType;
 import com.mygdx.dworlds.box2d.Box2DHelper;
 import com.mygdx.dworlds.box2d.Box2DWorld;
+import com.mygdx.dworlds.entity.Entity;
+import com.mygdx.dworlds.entity.Hero;
 import com.mygdx.dworlds.entity.mobs.Enemy;
 import com.mygdx.dworlds.manager.ObjectManager;
 import com.mygdx.dworlds.map.Chunk;
@@ -24,7 +26,7 @@ public class Bird extends Enemy {
     public Tile destTile;
     transient private TextureRegion tRegion;
 
-    public Bird(Vector3 pos, Box2DWorld box2d, Enums.EntityState state){
+    public Bird(Vector3 pos, Box2DWorld box2d, Enums.EntityState state, Hero hero){
         super();
         maxHeight = setHeight();
         speed = MathUtils.random(20) + 9;
@@ -32,10 +34,12 @@ public class Bird extends Enemy {
         height = 8;
         shadow = Media.birdShadow;
         this.pos.set(pos);
-
+        this.hero = hero;
+        attackSpeed = 40;
         enemyParticle = Media.birdHitParticleAnim;
 
         healthPoints = 100;
+        damage = 5;
 
         this.state = state;
         setup(box2d);
@@ -79,10 +83,12 @@ public class Bird extends Enemy {
     private void setup(Box2DWorld box2d){
         type = EntityType.BIRD;
         texture = Media.tree;
-        body = Box2DHelper.createBody(box2d.world, width/2, height/2, width/4, 0, pos, BodyDef.BodyType.StaticBody);
-        sensor = Box2DHelper.createSensor(box2d.world, width, height*.85f, width/2, height/3, pos, BodyDef.BodyType.DynamicBody);
+        body = Box2DHelper.createBody(box2d.world, width, height, width/4, height, pos, BodyDef.BodyType.StaticBody);
+        sensor = Box2DHelper.createSensor(box2d.world, width*2, height+ height/2, width/2, height/3, pos, BodyDef.BodyType.DynamicBody);
         bodyHashcode = body.getFixtureList().get(0).hashCode();
         sensorHashcode = sensor.getFixtureList().get(0).hashCode();
+        interactEntities = new ArrayList<>();
+        animationTime = 0;
         ticks = true;
     }
 
@@ -99,7 +105,14 @@ public class Bird extends Enemy {
         if(tRegion != null){
             batch.draw(tRegion, pos.x, pos.y + pos.z);
         }
-        if(tParticle != null){ batch.draw(tParticle, pos.x, pos.y+pos.z);}
+        if(tParticle != null){ 
+            batch.draw(tParticle, pos.x, pos.y+pos.z);
+            animationTime += 0.1;
+            if(animationTime >= 4){
+                particleType = Enums.ParticleType.NONE;
+                animationTime = 0;
+            }
+        }
     }
 
     @Override
@@ -115,34 +128,63 @@ public class Bird extends Enemy {
             clearDestination();
         } else if(isNotAirBorn()){
             setNewState(delta);
+        }else if(isAtacking()){
+            setHitHero(delta);
+            clearDestination();
         }
 
         if(isFlying()){
             checkFlyHeight();
             toggleHitboxes(false);
         }
+
+        if(time >= (1000 + attackSpeed)/(attackSpeed+1)) {
+            attack();
+            time = 0;
+        }
+    }
+
+    private void setHitHero(float delta) {
+
+        if(pos.x > hero.pos.x)
+            body.setTransform(body.getPosition().x - (destVec.x * speed * delta), body.getPosition().y, 0);
+        else if(pos.x < hero.pos.x)
+            body.setTransform(body.getPosition().x + (destVec.x * speed * delta), body.getPosition().y, 0);
+        if(pos.y > hero.pos.y)
+            body.setTransform(body.getPosition().x, body.getPosition().y - (destVec.x * speed * delta), 0);
+        else  if(pos.y < hero.pos.y)
+            body.setTransform(body.getPosition().x, body.getPosition().y + (destVec.x * speed * delta), 0);
+        updatePositions();
     }
 
     private void toggleHitboxes(boolean b) {
         body.setActive(b);
-        sensor.setActive(b);
     }
 
     private void setNewState(float delta) {
+        boolean attack;
+        if(hero.pos.x - pos.x <= 5 || hero.pos.y - pos.y <= 5){
+          attack = MathUtils.randomBoolean(.9f);
+        } else{
+            attack = MathUtils.randomBoolean(.6f);
+        }
         if(coolDown > 0){
             coolDown -= delta;
             if(isWalking()){
-                walk(delta);
+                walkToHero(delta);
             }
         } else {
             if(MathUtils.randomBoolean(.2f)){
                 state = Enums.EntityState.FLYING;
-            } else if(MathUtils.randomBoolean(.5f)) {
+            } else if(attack){
+                state = Enums.EntityState.ATTACKING;
+                coolDown = .3f;
+            }else if(MathUtils.randomBoolean(.5f)) {
                 state = Enums.EntityState.FEEDING;
                 coolDown = .5f;
             } else if(MathUtils.randomBoolean(.3f)) {
                 state = Enums.EntityState.WALKING;
-                coolDown = 1f;
+                coolDown = 10f;
             }
         }
     }
@@ -182,8 +224,15 @@ public class Bird extends Enemy {
         }
     }
 
+
+    private void attack(){
+        if(interactEntities != null && interactEntities.size() > 0) {
+            interactEntities.get(0).getDamage(damage);
+        }
+    }
+
     private void moveToDestination(float delta) {
-       body.setTransform(body.getPosition().x + (destVec.x * speed * delta), body.getPosition().y + (destVec.y * speed * delta), 0);
+        body.setTransform(body.getPosition().x + (destVec.x * speed * delta), body.getPosition().y + (destVec.y * speed * delta), 0);
 
         updatePositions();
     }
@@ -246,15 +295,45 @@ public class Bird extends Enemy {
         }
     }
 
+    private void walkToHero(float delta) {
+        if(currentTile != null && currentTile.isPassable()){
+            if(tRegion.isFlipX()){
+                if(pos.x > hero.pos.x)
+                body.setTransform(body.getPosition().x - speed / 4 * delta, body.getPosition().y,0);
+                else if(pos.y > hero.pos.y)
+                    body.setTransform(body.getPosition().x , body.getPosition().y + speed / 4 * delta,0);
+            } else if(!tRegion.isFlipX()) {
+                if(pos.x < hero.pos.x)
+                    body.setTransform(body.getPosition().x + speed / 4 * delta, body.getPosition().y,0);
+                else if(pos.y < hero.pos.y)
+                    body.setTransform(body.getPosition().x , body.getPosition().y + speed / 4 * delta ,0);
+            }
+            else walk(delta);
+            updatePositions();
+        }
+    }
+
     private boolean hasDestination() {
         return destVec != null;
     }
 
     private boolean isAtDestination() {
-        // TODO This is a temp fix as dest and current tiles are not loaded from JSON
         if (currentTile == null || destTile == null) return false;
         return currentTile.pos.epsilonEquals(destTile.pos, 20);
     }
+
+
+    @Override
+    public void entityCollision(Entity entity, boolean begin){
+        if(begin && entity.bodyHashcode != bodyHashcode && entity.sensorHashcode != sensorHashcode){
+            interactEntities.add(entity);
+        } else {
+            interactEntities.remove(entity);
+        }
+        attack();
+    }
+
+    private boolean isAtacking(){return state == Enums.EntityState.ATTACKING;}
 
     private boolean needsDestination() {
         return destVec == null && isFlying();
@@ -281,7 +360,7 @@ public class Bird extends Enemy {
     }
 
     private boolean isHitting(){
-        return state == Enums.EntityState.HIT;
+        return particleType == Enums.ParticleType.HIT;
     }
 
     private boolean isFlying() {

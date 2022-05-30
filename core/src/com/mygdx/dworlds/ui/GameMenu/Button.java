@@ -1,10 +1,10 @@
-package com.mygdx.dworlds.ui;
+package com.mygdx.dworlds.ui.GameMenu;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
-import com.mygdx.dworlds.entity.Entity;
 import com.mygdx.dworlds.Enums;
+import com.mygdx.dworlds.entity.Entity;
 
 public class Button extends Entity {
     public OnClickListener listener;

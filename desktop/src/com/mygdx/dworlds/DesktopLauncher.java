@@ -8,8 +8,8 @@ public class DesktopLauncher {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setForegroundFPS(60);
 		config.setTitle("DifferentWorlds");
-		//config.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
-		config.setWindowedMode(1280, 720);
+		config.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
+//		config.setWindowedMode(1280, 720);
 		new Lwjgl3Application(new Dworlds(), config);
 	}
 }

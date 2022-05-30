@@ -165,9 +165,7 @@ public class Control extends InputAdapter implements InputProcessor {
         // Set angle of mouse
         angle = (float) Math.toDegrees(Math.atan2(screenX - (screenWidth/2), screenY - (screenHeight/2)));
 
-        if (angle < 0) {
-            angle += 360;
-        }
+        if (angle < 0) angle += 360;
 
         // Set the COMPAS direction of the mouse cursor
         direction = (int) Math.floor((angle / 45) + 0.5) & 7;

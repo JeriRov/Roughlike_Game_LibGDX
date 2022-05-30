@@ -35,7 +35,7 @@ public class LoadingScreen implements Screen {
         queueAssets();
     }
 
-    private void update(float delta) {
+    private void update() {
         progress = MathUtils.lerp(progress, app.assets.getProgress(), .1f);
         if (app.assets.update() && progress >= app.assets.getProgress() - .001f) {
             app.setScreen(app.splashScreen);
@@ -47,7 +47,7 @@ public class LoadingScreen implements Screen {
         Gdx.gl.glClearColor(1f, 1f, 1f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        update(delta);
+        update();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(Color.BLACK);

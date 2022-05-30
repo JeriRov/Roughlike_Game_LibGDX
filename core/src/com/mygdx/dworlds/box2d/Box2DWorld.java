@@ -82,13 +82,6 @@ public class Box2DWorld {
         Entity sensorA = sensorMap.get(aFixture.hashCode());
         Entity sensorB = sensorMap.get(bFixture.hashCode());
 
-
-        /*System.out.println();
-        System.out.println(aFixture.hashCode() + " "  + bFixture.hashCode());
-        System.out.println("BODY: " + bodyA + " " + bodyB);
-        System.out.println("SENSOR: " + sensorA + " " + sensorB);
-        System.out.println(aFixture.isSensor() + " " + bFixture.isSensor());*/
-
         if (sensorA != null && bodyB != null) {
             if (!aFixture.isSensor() && !bFixture.isSensor()) {
                 sensorA.entityCollision(bodyB, begin);
@@ -96,10 +89,9 @@ public class Box2DWorld {
         } else  if (sensorB != null && bodyA != null) {
             if (!aFixture.isSensor() && !bFixture.isSensor()) {
                 sensorB.entityCollision(bodyA, begin);
+            }if (!aFixture.isSensor() && bFixture.isSensor()) {
+                sensorB.entityCollision(bodyA, begin);
             }
-        }
-
-        if (bodyA != null && bodyB != null) {
         }
     }
 
@@ -112,8 +104,6 @@ public class Box2DWorld {
             entityMap.put(e.bodyHashcode, e);
             sensorMap.put(e.sensorHashcode, e);
         }
-        System.out.println(entityMap);
-        System.out.println(sensorMap);
     }
 
     public void addEntityToMap(Entity entity) {
@@ -127,3 +117,10 @@ public class Box2DWorld {
     }
 
 }
+   /* For debug!
+        System.out.println();
+        System.out.println(aFixture.hashCode() + " "  + bFixture.hashCode());
+        System.out.println("BODY: " + bodyA + " " + bodyB);
+        System.out.println("SENSOR: " + sensorA + " " + sensorB);
+        System.out.println(aFixture.isSensor() + " " + bFixture.isSensor());
+*/

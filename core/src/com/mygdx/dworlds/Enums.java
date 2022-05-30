@@ -13,6 +13,11 @@ public class Enums {
         BIRD
     }
 
+    public enum ParticleType {
+        HIT,
+        NONE
+    }
+
     public enum EntityState {
         NONE,
         IDLE,
@@ -26,23 +31,18 @@ public class Enums {
         HIT
     }
     public enum GameState {
-        LOOSE,
         START,
-        WIN
+        PAUSE
     }
 
     public enum EntityDirection {
         LEFT,
-        RIGHT,
-        UP,
-        DOWN
+        RIGHT
     }
 
     public enum MenuState {
         ACTIVE,
-        DISABLED,
-        HOVEROVER,
-        CLICKED
+        DISABLED
     }
 
     public enum Compass {

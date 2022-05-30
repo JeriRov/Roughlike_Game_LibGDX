@@ -2,9 +2,8 @@ package com.mygdx.dworlds.ui.GameMenu;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.mygdx.dworlds.Enums;
 import com.mygdx.dworlds.map.Media;
-import com.mygdx.dworlds.ui.Button;
-import com.mygdx.dworlds.ui.OnClickListener;
 import com.mygdx.dworlds.ui.PlayScreen;
 
 public class SquareMenu extends Menu {
@@ -18,12 +17,19 @@ public class SquareMenu extends Menu {
 
 
         Button btn = buttons.get(1);
-        btn.icon = Media.iconSettings;
+        btn.icon = Media.iconPause;
         btn.setOnClickListener(
                 new OnClickListener(){
                     @Override
                     public void onClick(Button b) {
-
+                        if(game.gameState == Enums.GameState.PAUSE)
+                        {
+                            game.gameState = Enums.GameState.START;
+                        }else {
+                            game.game.setScreen(game.game.mainMenu);
+                            game.gameState = Enums.GameState.PAUSE;
+                        }
+                        game.pause();
                     }
                 });
 
@@ -50,6 +56,7 @@ public class SquareMenu extends Menu {
         // BUILDING
         build = new BuildMenu(pos.x + width, 0, 2, Media.mainBack);
     }
+
 
     @Override
     public void draw(SpriteBatch batch){

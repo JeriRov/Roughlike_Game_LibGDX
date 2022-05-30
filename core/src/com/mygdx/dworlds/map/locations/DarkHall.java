@@ -1,4 +1,6 @@
-package com.mygdx.dworlds.map;
+package com.mygdx.dworlds.map.locations;
+
+import com.mygdx.dworlds.map.Tile;
 
 public class DarkHall {
     public Tile centreTile;

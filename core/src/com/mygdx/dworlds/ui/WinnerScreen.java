@@ -14,18 +14,18 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.dworlds.Dworlds;
 import com.mygdx.dworlds.map.Media;
 
-public class MainMenu implements Screen {
+public class WinnerScreen implements Screen {
 
     private final Dworlds app;
 
     private Stage stage;
     private Skin skin;
 
-    private TextButton buttonPlay, buttonExit;
+    private TextButton buttonToMainMenu, buttonExit;
 
     private ShapeRenderer shapeRenderer;
 
-    public MainMenu(final Dworlds app) {
+    public WinnerScreen(final Dworlds app) {
         this.app = app;
         this.stage = new Stage(new FitViewport(app.displayW, app.displayH, app.camera));
         this.shapeRenderer = new ShapeRenderer();
@@ -50,7 +50,7 @@ public class MainMenu implements Screen {
     private void update(float delta) {
         stage.act(delta);
         stage.getBatch().begin();
-        stage.getBatch().draw(Media.menu_background, 0,0, app.displayW, app.displayH);
+        stage.getBatch().draw(Media.winner_background, 0,0, app.displayW, app.displayH);
         stage.getBatch().end();
     }
 
@@ -93,26 +93,16 @@ public class MainMenu implements Screen {
 
     private void initButtons() {
         int w = app.displayW/2, h = app.displayH/2;
-        buttonPlay = new TextButton("Play", skin, "default");
-        buttonPlay.setPosition(w-150, h-50);
-        buttonPlay.setSize(280, 60);
-        buttonPlay.addListener(new ClickListener() {
+        buttonToMainMenu = new TextButton("Main Menu", skin, "default");
+        buttonToMainMenu.setPosition(w-150, h-300);
+        buttonToMainMenu.setSize(280, 60);
+        buttonToMainMenu.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                app.setScreen(app.playScreen);
-            }
-        });
-        buttonExit = new TextButton("Exit", skin, "default");
-        buttonExit.setPosition(w-150, h-150);
-        buttonExit.setSize(280, 60);
-        buttonExit.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                Gdx.app.exit();
+                app.setScreen(app.mainMenu);
             }
         });
 
-        stage.addActor(buttonPlay);
-        stage.addActor(buttonExit);
+        stage.addActor(buttonToMainMenu);
     }
 }
